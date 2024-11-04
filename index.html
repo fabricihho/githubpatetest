@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Compra</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+        }
+        .contenedor {
+            background-color: #15745e;
+            border-radius: 10px;
+            width: 70%;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            color: #ff6347;
+        }
+        .banner {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        label, th, td {
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"], input[type="email"], input[type="date"], select {
+            padding: 8px;
+            border-radius: 5px;
+            width: 80%;
+            margin-bottom: 10px;
+        }
+        .imagen-producto {
+            width: 50px;
+            height: 50px;
+        }
+        .subtotal, .iva, .total {
+            font-size: 18px;
+            margin-top: 20px;
+            color: #4682b4;
+        }
+        button {
+            background-color: #ff6347;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #ff4500;
+        }
+    </style>
+</head>
+<body>
+
+<div class="contenedor">
+    <img src="IMG/bar01.png" alt="Banner" class="banner">
+    <h1>Formulario de Compra</h1>
+
+    <div class="seccion-encabezado">
+        <label for="nroVenta">Nro. de Venta:</label>
+        <input type="text" id="nroVenta">
+        <br>
+        <label for="fecha">Fecha:</label>
+        <input type="date" id="fecha">
+        <br>
+        <label for="cliente">Cliente:</label>
+        <input type="text" id="cliente">
+        <br>
+        <label for="tel">Teléfono:</label>
+        <input type="text" id="tel">
+        <br>
+        <label for="direccion">Dirección:</label>
+        <input type="text" id="direccion">
+        <br>
+        <label for="email">Email:</label>
+        <input type="email" id="email">
+    </div>
+
+    <div class="seccion-tabla">
+        <table border="1" width="100%">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Descripción</th>
+                    <th>Precio Unitario (Bs)</th>
+                    <th>Imagen</th>
+                    <th>Subtotal (Bs)</th>
+                </tr>
+            </thead>
+            <tbody id="filasProductos">
+            </tbody>
+        </table>
+    </div>
+
+    <div class="totales">
+        <div class="subtotal">Subtotal: Bs <span id="subtotal">0.00</span></div>
+        <div class="iva">IVA (13%): Bs <span id="iva">0.00</span></div>
+        <div class="total">Total: Bs <span id="total">0.00</span></div>
+    </div>
+
+    <button onclick="agregarFilaProducto()">Agregar Producto</button>
+</div>
+
+<script>
+    const productos = {
+        "Mouse USB": [
+            { descripcion: "Mouse Garming CPS-M52 2400DPI USB", precio: 63, imagen: "m1.png" },
+            { descripcion: "Mouse Garming 3200 DPI usb", precio: 77, imagen: "m2.png" },
+            { descripcion: "Mouse Optico CPS-7800 1000DPI USB", precio: 30, imagen: "m3.png" },
+            { descripcion: "Mouse Logitech Wireless m335", precio: 270, imagen: "m4.png" }
+        ],
+        "Teclados": [
+            { descripcion: "Teclado Mecanico CPS-rb20 GAMER Black", precio: 648, imagen: "t1.png" },
+            { descripcion: "TECLADO MECANICOCPS-RGB10 GAMER Black USB", precio: 570, imagen: "t2.png" },
+            { descripcion: "TECLADO MECANICO CPS-X700 GAMER 3COLORES LED", precio: 410, imagen: "t3.png" },
+            { descripcion: "Teclado multimedia CPS usb", precio: 45, imagen: "t4.png" }
+        ],
+        "Cooler": [
+            { descripcion: "COOLER PARA LAPTOP BASE LM588 CPS", precio: 37, imagen: "c1.png" },
+            { descripcion: "COOLER PARA LAPTOP BASE N200 CPS", precio: 47, imagen: "c2.png" },
+            { descripcion: "COOLER PARA LAPTOP HKT-29", precio: 90, imagen: "c3.png" },
+            { descripcion: "COOLER PARA LAPTOP HKT-25", precio: 150, imagen: "c4.png" }
+        ],
+        "Audífonos": [
+            { descripcion: "AUDIFONO Microfono usb PS-808", precio: 39, imagen: "a1.png" },
+            { descripcion: "AUDIFONO Microfono usb PS-806", precio: 33, imagen: "a2.png" },
+            { descripcion: "AUDIFONO MICROFONO KOTION AECH PRO", precio: 250, imagen: "a3.png" }
+        ],
+        "Cámaras de Vigilancia": [
+            { descripcion: "CAMARA DE VIGILANCIA RM-6281HD 900TVL", precio: 120, imagen: "v1.png" },
+            { descripcion: "CAMARA DE VIGILANCIA RM6225HD", precio: 100, imagen: "v2.png" },
+            { descripcion: "CAMARA DE VIGILANCIA LM636HD 900TVL", precio: 132, imagen: "v3.png" }
+        ]
+    };
+
+    function agregarFilaProducto() {
+        const fila = document.createElement("tr");
+
+        const celdaProducto = document.createElement("td");
+        const selectProducto = document.createElement("select");
+        selectProducto.innerHTML = `
+            <option value="">Seleccionar</option>
+            <option value="Mouse USB">Mouse USB</option>
+            <option value="Teclados">Teclados</option>
+            <option value="Cooler">Cooler</option>
+            <option value="Audífonos">Audífonos</option>
+            <option value="Cámaras de Vigilancia">Cámaras de Vigilancia</option>
+        `;
+        selectProducto.onchange = function() {
+            actualizarDescripcion(selectProducto.value, selectDescripcion, inputPrecioUnitario, celdaImagen);
+        };
+        celdaProducto.appendChild(selectProducto);
+        fila.appendChild(celdaProducto);
+
+        const celdaCantidad = document.createElement("td");
+        const inputCantidad = document.createElement("input");
+        inputCantidad.type = "number";
+        inputCantidad.value = 1;
+        inputCantidad.onchange = actualizarSubtotal;
+        celdaCantidad.appendChild(inputCantidad);
+        fila.appendChild(celdaCantidad);
+
+        const celdaDescripcion = document.createElement("td");
+        const selectDescripcion = document.createElement("select");
+        selectDescripcion.disabled = true;
+        celdaDescripcion.appendChild(selectDescripcion);
+        fila.appendChild(celdaDescripcion);
+
+        const celdaPrecio = document.createElement("td");
+        const inputPrecioUnitario = document.createElement("input");
+        inputPrecioUnitario.type = "number";
+        inputPrecioUnitario.disabled = true;
+        celdaPrecio.appendChild(inputPrecioUnitario);
+        fila.appendChild(celdaPrecio);
+
+        const celdaImagen = document.createElement("td");
+        const img = document.createElement("img");
+        img.className = "imagen-producto";
+        img.src = "";
+        celdaImagen.appendChild(img);
+        fila.appendChild(celdaImagen);
+
+        const celdaSubtotal = document.createElement("td");
+        celdaSubtotal.textContent = "0.00";
+        fila.appendChild(celdaSubtotal);
+
+        document.getElementById("filasProductos").appendChild(fila);
+
+        function actualizarDescripcion(producto, selectDescripcion, inputPrecioUnitario, celdaImagen) {
+            selectDescripcion.innerHTML = "<option value=''>Seleccionar</option>";
+            if (producto && productos[producto]) {
+                productos[producto].forEach(item => {
+                    const option = document.createElement("option");
+                    option.textContent = item.descripcion;
+                    option.value = item.precio;
+                    option.dataset.imagen = item.imagen;
+                    selectDescripcion.appendChild(option);
+                });
+                selectDescripcion.disabled = false;
+            } else {
+                selectDescripcion.disabled = true;
+            }
+
+            selectDescripcion.onchange = function() {
+                inputPrecioUnitario.value = selectDescripcion.value;
+                img.src = "IMG/" + selectDescripcion.selectedOptions[0].dataset.imagen;
+                actualizarSubtotal();
+            };
+        }
+
+        function actualizarSubtotal() {
+            const cantidad = parseInt(inputCantidad.value) || 0;
+            const precioUnitario = parseFloat(inputPrecioUnitario.value) || 0;
+            const subtotal = cantidad * precioUnitario;
+            celdaSubtotal.textContent = subtotal.toFixed(2);
+
+            actualizarTotales();
+        }
+    }
+
+    function actualizarTotales() {
+        const filas = document.getElementById("filasProductos").querySelectorAll("tr");
+        let subtotal = 0;
+
+        filas.forEach(fila => {
+            const celdaSubtotal = fila.querySelector("td:last-child");
+            subtotal += parseFloat(celdaSubtotal.textContent) || 0;
+        });
+
+        const iva = subtotal * 0.13;
+        const total = subtotal + iva;
+
+        document.getElementById("subtotal").textContent = subtotal.toFixed(2);
+        document.getElementById("iva").textContent = iva.toFixed(2);
+        document.getElementById("total").textContent = total.toFixed(2);
+    }
+</script>
+
+</body>
+</html>
